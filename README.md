@@ -1,111 +1,156 @@
 # DBX Metadata
 
-A Java library for extracting unified database metadata from MSSQL, MySQL, and PostgreSQL databases.
+[![](https://jitpack.io/v/eshmamatovobidjon/dbx-metadata.svg)](https://jitpack.io/#eshmamatovobidjon/dbx-metadata)
+
+A Java library for extracting unified database metadata from PostgreSQL, MySQL, and SQL Server databases.
 
 ## Features
 
-- **Unified API**: Single interface for multiple database vendors
-- **Comprehensive Metadata**: Tables, columns, primary keys, foreign keys, indexes, views, triggers, and stored procedures
-- **Vendor-Specific Enhancements**: Uses native system catalogs for enhanced metadata (comments, definitions)
-- **Spring Boot Integration**: Auto-configuration for seamless Spring Boot usage
-- **JSON Export**: Export metadata to JSON format
-- **Graceful Error Handling**: Returns partial results on permission issues instead of failing
-- **Extensible**: Easy to add support for new database vendors
-
-## Requirements
-
-- Java 17+
-- Maven 3.6+
+- **Unified API** - Single interface for multiple database vendors
+- **Comprehensive Metadata** - Tables, columns, primary keys, foreign keys, indexes, views, triggers, stored procedures
+- **Vendor-Specific Enhancements** - Uses native system catalogs for comments and definitions
+- **Spring Boot Integration** - Auto-configuration included
+- **JSON Export** - Export metadata to JSON format
+- **Graceful Error Handling** - Returns partial results on permission issues
 
 ## Installation
 
-Add the following dependencies to your `pom.xml`:
+Add JitPack repository and dependency to your `pom.xml`:
 
 ```xml
-<!-- Core library -->
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <!-- Core library -->
+    <dependency>
+        <groupId>com.github.eshmamatovobidjon</groupId>
+        <artifactId>dbx-core</artifactId>
+        <version>v1.0.0</version>
+    </dependency>
+    
+    <!-- Spring Boot Starter (optional) -->
+    <dependency>
+        <groupId>com.github.eshmamatovobidjon</groupId>
+        <artifactId>dbx-spring-boot-starter</artifactId>
+        <version>v1.0.0</version>
+    </dependency>
+</dependencies>
+```
+
+**Don't forget to add your database driver:**
+
+```xml
+<!-- PostgreSQL -->
 <dependency>
-    <groupId>io.dbxmetadata</groupId>
-    <artifactId>dbx-core</artifactId>
-    <version>1.0.0</version>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>{postgresql.version}</version>
 </dependency>
 
-<!-- Spring Boot Starter (optional) -->
+<!-- MySQL -->
 <dependency>
-    <groupId>io.dbxmetadata</groupId>
-    <artifactId>dbx-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>{mysql.version}</version>
+</dependency>
+
+<!-- SQL Server -->
+<dependency>
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>mssql-jdbc</artifactId>
+    <version>{mssql.version}</version>
 </dependency>
 ```
 
-## Quick Start
+### Gradle
 
-### Basic Usage
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.eshmamatovobidjon:dbx-core:v1.0.0'
+}
+```
+
+## Quick Start
 
 ```java
 import io.dbxmetadata.api.DatabaseExplorer;
 import io.dbxmetadata.api.DatabaseExplorerFactory;
 import io.dbxmetadata.model.*;
 
-try (Connection conn = dataSource.getConnection()) {
-    // Create explorer - vendor is auto-detected
-    DatabaseExplorer explorer = DatabaseExplorerFactory.create(conn);
-    
-    // Extract all metadata
-    DatabaseMetadata metadata = explorer.explore();
-    
-    // Access schema information
-    for (SchemaMetadata schema : metadata.getSchemas()) {
-        System.out.println("Schema: " + schema.getName());
-        
-        for (TableMetadata table : schema.getTables()) {
-            System.out.println("  Table: " + table.getName());
+import java.sql.DriverManager;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        try (var conn = DriverManager.getConnection(
+                "jdbc:postgresql://localhost:5432/mydb", 
+                "user", 
+                "password")) {
             
-            for (ColumnMetadata column : table.getColumns()) {
-                System.out.println("    Column: " + column.getName() + 
-                                   " (" + column.getDataType() + ")");
+            // Create explorer - auto-detects database type
+            DatabaseExplorer explorer = DatabaseExplorerFactory.create(conn);
+            
+            // Extract all metadata
+            DatabaseMetadata metadata = explorer.explore();
+            
+            // Print info
+            System.out.println("Database: " + metadata.getProductName());
+            System.out.println("Version: " + metadata.getProductVersion());
+            
+            for (SchemaMetadata schema : metadata.getSchemas()) {
+                System.out.println("\nSchema: " + schema.getName());
+                
+                for (TableMetadata table : schema.getTables()) {
+                    System.out.println("  Table: " + table.getName());
+                    
+                    for (ColumnMetadata column : table.getColumns()) {
+                        System.out.printf("    - %s %s%s%n",
+                            column.getName(),
+                            column.getDataType(),
+                            column.isPrimaryKey() ? " (PK)" : "");
+                    }
+                }
             }
         }
     }
 }
 ```
 
-### Export to JSON
+## Export to JSON
 
 ```java
-DatabaseExplorer explorer = DatabaseExplorerFactory.create(connection);
+DatabaseExplorer explorer = DatabaseExplorerFactory.create(conn);
 
 ExportOptions options = new ExportOptions(
-    ExportOptions.ExportFormat.JSON, 
-    Paths.get("db-metadata.json")
+    ExportOptions.ExportFormat.JSON,
+    Paths.get("schema.json")
 );
 
 ExportResult result = explorer.export(options);
-if (result.isSuccess()) {
-    System.out.println("Exported to: " + result.getOutputPath());
-}
+System.out.println("Exported: " + result.isSuccess());
 ```
 
-### Spring Boot Integration
+## Spring Boot Usage
 
-Simply add the starter dependency and configure your DataSource:
+Just add the starter dependency and configure your datasource:
 
 ```yaml
-# application.yml
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb
     username: user
     password: secret
-
-# Optional DBX configuration
-dbx:
-  metadata:
-    enabled: true
-    include-procedures: true
-    include-triggers: true
 ```
 
-Then inject the explorer:
+Then inject and use:
 
 ```java
 @Service
@@ -126,128 +171,24 @@ public class SchemaService {
 }
 ```
 
-## API Reference
-
-### DatabaseExplorerFactory
-
-Factory for creating `DatabaseExplorer` instances:
-
-```java
-// From Connection
-DatabaseExplorer explorer = DatabaseExplorerFactory.create(connection);
-
-// From DataSource
-DatabaseExplorer explorer = DatabaseExplorerFactory.create(dataSource);
-
-// With custom strategy
-DatabaseExplorer explorer = DatabaseExplorerFactory.create(connection, customStrategy);
-```
-
-### DatabaseExplorer
-
-Main interface for metadata extraction:
-
-| Method | Description |
-|--------|-------------|
-| `explore()` | Extract complete database metadata |
-| `getSchema(name)` | Get metadata for a specific schema |
-| `listSchemas()` | List all accessible schema names |
-| `export(options)` | Export metadata to file |
-
-### Model Classes
-
-| Class | Description |
-|-------|-------------|
-| `DatabaseMetadata` | Root object with database info and schemas |
-| `SchemaMetadata` | Schema with tables, views, and procedures |
-| `TableMetadata` | Table with columns, keys, indexes, triggers |
-| `ColumnMetadata` | Column properties (type, size, nullable, etc.) |
-| `PrimaryKeyMetadata` | Primary key constraint |
-| `ForeignKeyMetadata` | Foreign key with referenced table |
-| `IndexMetadata` | Index with columns and properties |
-| `ViewMetadata` | View with columns and definition |
-| `ProcedureMetadata` | Stored procedure/function |
-| `TriggerMetadata` | Trigger with timing and event |
-
 ## Supported Databases
 
-| Database | Strategy | Comments | Triggers | Procedures |
-|----------|----------|----------|----------|------------|
-| PostgreSQL | `PostgresMetadataStrategy` | ✅ | ✅ | ✅ |
-| MySQL/MariaDB | `MySqlMetadataStrategy` | ✅ | ✅ | ✅ |
-| SQL Server | `MsSqlMetadataStrategy` | ✅ | ✅ | ✅ |
-| Others | `GenericJdbcMetadataStrategy` | ⚠️ | ⚠️ | ⚠️ |
+| Database | Comments | Triggers | Procedures |
+|----------|----------|----------|------------|
+| PostgreSQL | ✅ | ✅ | ✅ |
+| MySQL/MariaDB | ✅ | ✅ | ✅ |
+| SQL Server | ✅ | ✅ | ✅ |
+| Others (JDBC) | ⚠️ | ⚠️ | ⚠️ |
 
-## Extending the Library
+## Requirements
 
-### Adding a New Database Provider
-
-1. Create a new strategy class extending `AbstractMetadataStrategy`:
-
-```java
-public class OracleMetadataStrategy extends AbstractMetadataStrategy {
-    
-    @Override
-    public boolean supports(String databaseProductName) {
-        return databaseProductName != null && 
-               databaseProductName.toLowerCase().contains("oracle");
-    }
-    
-    @Override
-    public String getVendorName() {
-        return "Oracle";
-    }
-    
-    @Override
-    protected boolean shouldIncludeSchema(String schemaName) {
-        // Filter system schemas
-        return !schemaName.startsWith("SYS");
-    }
-    
-    @Override
-    protected String extractTableComment(Connection conn, String catalog, 
-            String schema, String tableName) {
-        // Oracle-specific query for table comments
-        String sql = "SELECT comments FROM all_tab_comments " +
-                     "WHERE owner = ? AND table_name = ?";
-        // ... execute query
-    }
-    
-    // Override other methods as needed
-}
-```
-
-2. Register the strategy:
-
-```java
-DatabaseExplorerFactory.registerStrategy(new OracleMetadataStrategy());
-```
-
-## Configuration Properties
-
-When using Spring Boot:
-
-| Property | Default | Description |
-|----------|---------|-------------|
-| `dbx.metadata.enabled` | `true` | Enable/disable auto-configuration |
-| `dbx.metadata.cache-enabled` | `false` | Cache metadata after first exploration |
-| `dbx.metadata.include-procedures` | `true` | Include stored procedures |
-| `dbx.metadata.include-triggers` | `true` | Include triggers |
-| `dbx.metadata.include-view-definitions` | `true` | Include view SQL definitions |
-
-## Building from Source
-
-```bash
-git clone https://github.com/example/dbx-metadata.git
-cd dbx-metadata
-mvn clean install
-```
-
-Run tests:
-```bash
-mvn test
-```
+- Java 17+
+- Maven or Gradle
 
 ## License
 
-This project is licensed under the Apache-2.0 license.
+MIT License
+
+## Author
+
+[Obidjon Eshmamatov](https://github.com/eshmamatovobidjon)

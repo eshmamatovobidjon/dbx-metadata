@@ -3,13 +3,35 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.dbxmetadata</groupId>
-	<artifactId>dbx-metadata-parent</artifactId>
-	<version>1.0.0</version>
+    <groupId>com.github.eshmamatovobidjon</groupId>
+    <artifactId>dbx-metadata</artifactId>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
-    <name>DBX Metadata Parent</name>
+    <name>DBX Metadata</name>
     <description>Database metadata extraction library for MSSQL, MySQL, and PostgreSQL</description>
+    <url>https://github.com/eshmamatovobidjon/dbx-metadata</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>eshmamatovobidjon</id>
+            <name>Obidjon Eshmamatov</name>
+            <url>https://github.com/eshmamatovobidjon</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/eshmamatovobidjon/dbx-metadata.git</connection>
+        <developerConnection>scm:git:ssh://github.com:eshmamatovobidjon/dbx-metadata.git</developerConnection>
+        <url>https://github.com/eshmamatovobidjon/dbx-metadata</url>
+    </scm>
 
     <modules>
         <module>dbx-core</module>
