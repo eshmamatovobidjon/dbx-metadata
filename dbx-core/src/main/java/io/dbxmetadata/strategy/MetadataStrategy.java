@@ -18,7 +18,7 @@ public interface MetadataStrategy {
     TableMetadata extractTable(Connection connection, String catalog, String schema, String tableName)
             throws MetadataExtractionException;
 
-    ColumnMetadata extractColumns(Connection connection, String catalog, String schema, String tableName)
+    List<ColumnMetadata> extractColumns(Connection connection, String catalog, String schema, String tableName)
             throws MetadataExtractionException;
 
     List<ForeignKeyMetadata> extractForeignKeys(Connection connection, String catalog, String schema, String tableName)

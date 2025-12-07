@@ -1,7 +1,12 @@
 package io.dbxmetadata.api;
 
 import io.dbxmetadata.exception.MetadataExtractionException;
-import io.dbxmetadata.strategy.*;
+import io.dbxmetadata.impl.DefaultDatabaseExplorer;
+import io.dbxmetadata.strategy.GenericJdbcMetadataStrategy;
+import io.dbxmetadata.strategy.MetadataStrategy;
+import io.dbxmetadata.strategy.MsSqlMetadataStrategy;
+import io.dbxmetadata.strategy.MySqlMetadataStrategy;
+import io.dbxmetadata.strategy.PostgresMetadataStrategy;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
