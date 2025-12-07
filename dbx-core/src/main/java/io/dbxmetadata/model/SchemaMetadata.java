@@ -2,6 +2,7 @@ package io.dbxmetadata.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -88,9 +89,9 @@ public class SchemaMetadata {
     public static final class Builder {
         private String name;
         private String catalog;
-        private List<TableMetadata> tables;
-        private List<ViewMetadata> views;
-        private List<ProcedureMetadata> procedures;
+        private List<TableMetadata> tables = new ArrayList<>();;
+        private List<ViewMetadata> views = new ArrayList<>();;
+        private List<ProcedureMetadata> procedures = new ArrayList<>();;
         private String owner;
 
         private Builder() {}
