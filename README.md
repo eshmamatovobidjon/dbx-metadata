@@ -28,14 +28,14 @@ Add JitPack repository and dependency to your `pom.xml`:
 <dependencies>
     <!-- Core library -->
     <dependency>
-        <groupId>com.github.eshmamatovobidjon</groupId>
+        <groupId>com.github.eshmamatovobidjon.dbx-metadata</groupId>
         <artifactId>dbx-core</artifactId>
         <version>v1.0.2</version>
     </dependency>
     
     <!-- Spring Boot Starter (optional) -->
     <dependency>
-        <groupId>com.github.eshmamatovobidjon</groupId>
+        <groupId>com.github.eshmamatovobidjon.dbx-metadata</groupId>
         <artifactId>dbx-spring-boot-starter</artifactId>
         <version>v1.0.2</version>
     </dependency>
