@@ -42,9 +42,9 @@ Add the following dependencies to your `pom.xml`:
 ### Basic Usage
 
 ```java
-import com.example.dbxmetadata.api.DatabaseExplorer;
-import com.example.dbxmetadata.api.DatabaseExplorerFactory;
-import com.example.dbxmetadata.model.*;
+import io.dbxmetadata.api.DatabaseExplorer;
+import io.dbxmetadata.api.DatabaseExplorerFactory;
+import io.dbxmetadata.model.*;
 
 try (Connection conn = dataSource.getConnection()) {
     // Create explorer - vendor is auto-detected
