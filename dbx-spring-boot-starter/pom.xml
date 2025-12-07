@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.dbxmetadata</groupId>
+            <groupId>com.github.eshmamatovobidjon</groupId>
             <artifactId>dbx-core</artifactId>
             <version>${project.version}</version>
         </dependency>
